@@ -7,7 +7,7 @@ import { CreateCoffeeDto, UpdateCoffeeDto } from './dto';
 export class CoffeesService {
   private coffees: Coffee[] = [
     {
-      id: 1,
+      id: '1819104a-93e9-4c45-b70d-8ad246decb24',
       name: 'Shipwreck Roast',
       brand: 'Buddy Brew',
       flavors: ['chocolate', 'vanilla'],
@@ -18,7 +18,7 @@ export class CoffeesService {
     return this.coffees;
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     const coffee = _.find(this.coffees, { id });
     if (_.isUndefined(coffee)) {
       throw new NotFoundException(`Coffee #${id} not found.`);
@@ -31,15 +31,15 @@ export class CoffeesService {
     return createCoffeeDto;
   }
 
-  update(id: number, updateCoffeeDto: UpdateCoffeeDto) {
+  update(id: string, updateCoffeeDto: UpdateCoffeeDto) {
     const existingCoffee = this.findOne(id);
     if (existingCoffee) {
       // update the existing entity
     }
   }
 
-  remove(id: number) {
-    const coffeeIndex = _.findIndex(this.coffees, { id: +id });
+  remove(id: string) {
+    const coffeeIndex = _.findIndex(this.coffees, { id });
     if (coffeeIndex >= 0) {
       this.coffees.splice(coffeeIndex, 1);
     }
