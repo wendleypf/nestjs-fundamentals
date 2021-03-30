@@ -1,25 +1,22 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as _ from 'lodash';
 import { Coffee } from './entities';
 import { CreateCoffeeDto, UpdateCoffeeDto } from './dto';
 
 @Injectable()
 export class CoffeesService {
-  private coffees: Coffee[] = [
-    {
-      id: '1819104a-93e9-4c45-b70d-8ad246decb24',
-      name: 'Shipwreck Roast',
-      brand: 'Buddy Brew',
-      flavors: ['chocolate', 'vanilla'],
-    },
-  ];
+  constructor(
+    @InjectRepository(Coffee) private readonly _repository: Repository<Coffee>,
+  ) {}
 
   findAll() {
-    return this.coffees;
+    return this._repository.find();
   }
 
-  findOne(id: string) {
-    const coffee = _.find(this.coffees, { id });
+  async findOne(id: string) {
+    const coffee = await this._repository.findOne({ id });
     if (_.isUndefined(coffee)) {
       throw new NotFoundException(`Coffee #${id} not found.`);
     }
@@ -27,21 +24,20 @@ export class CoffeesService {
   }
 
   create(createCoffeeDto: CreateCoffeeDto) {
-    this.coffees.push(createCoffeeDto);
-    return createCoffeeDto;
+    const coffee = this._repository.create(createCoffeeDto);
+    return this._repository.save(coffee);
   }
 
-  update(id: string, updateCoffeeDto: UpdateCoffeeDto) {
-    const existingCoffee = this.findOne(id);
-    if (existingCoffee) {
-      // update the existing entity
+  async update(id: string, updateCoffeeDto: UpdateCoffeeDto) {
+    const coffee = await this._repository.preload({ id, ...updateCoffeeDto });
+    if (_.isUndefined(coffee)) {
+      throw new NotFoundException(`Coffee #${id} not found.`);
     }
+    return this._repository.save(coffee);
   }
 
-  remove(id: string) {
-    const coffeeIndex = _.findIndex(this.coffees, { id });
-    if (coffeeIndex >= 0) {
-      this.coffees.splice(coffeeIndex, 1);
-    }
+  async remove(id: string) {
+    const coffee = await this.findOne(id);
+    return this._repository.remove(coffee);
   }
 }
