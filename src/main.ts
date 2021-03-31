@@ -9,6 +9,9 @@ import { AppModule } from './app.module';
       whitelist: true,
       transform: true,
       forbidNonWhitelisted: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
     }),
   );
   app.setGlobalPrefix('api');
